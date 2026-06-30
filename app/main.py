@@ -1,7 +1,7 @@
 import argparse
 import os
-import sys
 import json
+import subprocess
 
 from openai import OpenAI
 
@@ -47,6 +47,23 @@ tools_schema = [
             },
         },
     },
+    {
+        "type": "function",
+        "function": {
+            "name": "Bash",
+            "description": "Execute a shell command",
+            "parameters": {
+                "type": "object",
+                "required": ["command"],
+                "properties": {
+                    "command": {
+                        "type": "string",
+                        "description": "The command to execute",
+                    }
+                },
+            },
+        },
+    },
 ]
 
 
@@ -62,8 +79,10 @@ def write_tool(file, content):
         f.write(content)
     return content
 
-def bash_tool():
-    pass
+
+def bash_tool(command):
+    cmd = subprocess.run(command.split())
+    return cmd.stdout + cmd.stderr
 
 
 def main():
@@ -103,6 +122,8 @@ def main():
                     tool_res = read_tool(args.get("file_path"))
                 elif name == "Write":
                     tool_res = write_tool(args.get("file_path"), args.get("content"))
+                elif name == "Bash":
+                    tool_res = bash_tool(args.get("command"))
                 tool_res_msg = {
                     "role": "tool",
                     "tool_call_id": call.get("id"),
