@@ -8,7 +8,7 @@ from openai import OpenAI
 API_KEY = os.getenv("OPENROUTER_API_KEY")
 BASE_URL = os.getenv("OPENROUTER_BASE_URL", default="https://openrouter.ai/api/v1")
 
-tools_schema = {
+tools_schema = [
     {
         "type": "function",
         "function": {
@@ -47,7 +47,7 @@ tools_schema = {
             },
         },
     },
-}
+]
 
 
 def read_tool(file):
@@ -79,7 +79,7 @@ def main():
         chat = client.chat.completions.create(
             model="anthropic/claude-haiku-4.5",
             messages=messages,
-            tools=[tools_schema],
+            tools=tools_schema,
         )
         messages.append(chat.choices[0].message.model_dump())
 
