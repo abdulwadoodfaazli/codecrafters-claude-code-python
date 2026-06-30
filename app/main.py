@@ -62,6 +62,9 @@ def write_tool(file, content):
         f.write(content)
     return content
 
+def bash_tool():
+    pass
+
 
 def main():
     p = argparse.ArgumentParser()
