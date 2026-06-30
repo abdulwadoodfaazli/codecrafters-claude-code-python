@@ -44,30 +44,35 @@ def main():
 
     client = OpenAI(api_key=API_KEY, base_url=BASE_URL)
 
-    chat = client.chat.completions.create(
-        model="anthropic/claude-haiku-4.5",
-        messages=[{"role": "user", "content": args.p}],
-        tools=[read_tool_schema],
-    )
+    messages = [{"role": "user", "content": args.p}]
 
-    if not chat.choices or len(chat.choices) == 0:
-        raise RuntimeError("no choices in response")
+    while True:
+        chat = client.chat.completions.create(
+            model="anthropic/claude-haiku-4.5",
+            messages=messages,
+            tools=[read_tool_schema],
+        )
+        messages.append(chat.choices[0].message.model_dump())
 
-    tool_calls = (
-        chat.model_dump()
-        .get("choices", [{}])[0]
-        .get("message", {})
-        .get("tool_calls", [])
-    )
-    if tool_calls:
-        for call in tool_calls:
-            name = call.get("function", {}).get("name")
-            args = json.loads(call.get("function", {}).get("arguments", "{}"))
-            if name == "Read":
-                tool_res = read_tool(args.get("file_path"))
-                print(tool_res)
-    else:
-        print(chat.choices[0].message.content)
+        if not chat.choices or len(chat.choices) == 0:
+            raise RuntimeError("no choices in response")
+
+        tool_calls = (
+            chat.model_dump()
+            .get("choices", [{}])[0]
+            .get("message", {})
+            .get("tool_calls", [])
+        )
+        if tool_calls:
+            for call in tool_calls:
+                name = call.get("function", {}).get("name")
+                args = json.loads(call.get("function", {}).get("arguments", "{}"))
+                if name == "Read":
+                    tool_res = read_tool(args.get("file_path"))
+                    print(tool_res)
+        else:
+            print(chat.choices[0].message.content)
+            break
 
 
 if __name__ == "__main__":
