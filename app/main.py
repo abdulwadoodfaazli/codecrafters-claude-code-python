@@ -69,7 +69,8 @@ def main():
                 args = json.loads(call.get("function", {}).get("arguments", "{}"))
                 if name == "Read":
                     tool_res = read_tool(args.get("file_path"))
-                    print(tool_res)
+                    tool_res_msg = {"role": "tool", "tool_call_id": call.get("id"), "content": tool_res}
+                    messages.append(tool_res_msg)
         else:
             print(chat.choices[0].message.content)
             break
