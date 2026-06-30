@@ -77,7 +77,7 @@ def main():
         chat = client.chat.completions.create(
             model="anthropic/claude-haiku-4.5",
             messages=messages,
-            tools=[read_tool_schema],
+            tools=[read_tool_schema, write_tool_schema],
         )
         messages.append(chat.choices[0].message.model_dump())
 
