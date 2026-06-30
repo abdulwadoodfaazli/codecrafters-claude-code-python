@@ -52,10 +52,13 @@ def main():
 
     if not chat.choices or len(chat.choices) == 0:
         raise RuntimeError("no choices in response")
-    
-    print(chat)
 
-    tool_calls = chat.model_dump().get("choices", [{}])[0].get("message", {}).get("tool_calls", [])
+    tool_calls = (
+        chat.model_dump()
+        .get("choices", [{}])[0]
+        .get("message", {})
+        .get("tool_calls", [])
+    )
     for call in tool_calls:
         name = call.get("function", {}).get("name")
         args = json.loads(call.get("function", {}).get("arguments", "{}"))
