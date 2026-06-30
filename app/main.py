@@ -26,12 +26,39 @@ read_tool_schema = {
     },
 }
 
+write_tool_schema = {
+    "type": "function",
+    "function": {
+        "name": "Write",
+        "description": "Write content to a file",
+        "parameters": {
+            "type": "object",
+            "required": ["file_path", "content"],
+            "properties": {
+                "file_path": {
+                    "type": "string",
+                    "description": "The path of the file to write to",
+                },
+                "content": {
+                    "type": "string",
+                    "description": "The content to write to the file",
+                },
+            },
+        },
+    },
+}
+
 
 def read_tool(file):
     if not os.path.exists(file):
         raise RuntimeError(f"File {file} does not exist")
     with open(file, "r") as f:
         return f.read()
+    
+def write_tool(file, content):
+    with open(file, "w") as f:
+        f.write(content)
+    return content
 
 
 def main():
@@ -69,8 +96,14 @@ def main():
                 args = json.loads(call.get("function", {}).get("arguments", "{}"))
                 if name == "Read":
                     tool_res = read_tool(args.get("file_path"))
-                    tool_res_msg = {"role": "tool", "tool_call_id": call.get("id"), "content": tool_res}
-                    messages.append(tool_res_msg)
+                elif name == "Write":
+                    tool_res = write_tool(args.get("file_path"), args.get("content"))
+                tool_res_msg = {
+                    "role": "tool",
+                    "tool_call_id": call.get("id"),
+                    "content": tool_res,
+                }
+                messages.append(tool_res_msg)
         else:
             print(chat.choices[0].message.content)
             break
