@@ -81,7 +81,7 @@ def write_tool(file, content):
 
 
 def bash_tool(command):
-    cmd = subprocess.run(command.split())
+    cmd = subprocess.run(command.split(), capture_output=True)
     return cmd.stdout + cmd.stderr
 
 
